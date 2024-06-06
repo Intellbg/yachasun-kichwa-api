@@ -1,0 +1,29 @@
+{
+  "name": "yachasun-kichwa-api",
+  "version": "1.0.0",
+  "description": "Yachasun kichwa API",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./src/app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Intellbg/yachasun-kichwa-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Intellbg/yachasun-kichwa-api/issues"
+  },
+  "homepage": "https://github.com/Intellbg/yachasun-kichwa-api#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
