@@ -19,14 +19,15 @@ const wordSchema = new mongoose.Schema({
     tags: {
         type: Array,
     },
-    audio:{
+    audio: {
         type: String,
     },
-    image:{
+    image: {
         type: String,
     }
-});
-
+},
+    { strict: process.env.STRICT === "1" }
+);
 const Word = mongoose.model('Word', wordSchema);
 
 export default Word;
