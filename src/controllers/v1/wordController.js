@@ -28,12 +28,23 @@ const getWordList = async (req, res) => {
             query.tags = { $in: req.query.tags.split(',') };
         }
 
+        if (req.query.kichwa) {
+            query.kichwa = { $regex: `^${req.query.kichwa}`, $options: 'i' };
+        }
+
+        if (req.query.spanish) {
+            query.kichwa = { $regex: `^${req.query.spanish}`, $options: 'i' };
+        }
+
+        if (req.query.english) {
+            query.kichwa = { $regex: `^${req.query.english}`, $options: 'i' };
+        }
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        const sort = req.query.sort || 'createdAt'; // Default sort by createdAt
-        const sortOrder = req.query.sortOrder || 'desc'; // Default sortOrder is descending
+        const sort = req.query.sort || 'kichwa'; 
+        const sortOrder = req.query.sortOrder || 'desc';
 
         const wordList = await Word.find(query)
             .skip(skip)
