@@ -6,6 +6,10 @@ const createWordEntry = async (req, res) => {
         const newWord = new Word({
             kichwa, spanish, english, lecture, tags, imagen, audio
         });
+        const word = await Word.findOne({kichwa: req.body.kichwa});
+        if (word){
+            return res.status(400).json({ message: 'Duplicate entry found' });
+        }
         const savedWord = await newWord.save();
         res.status(201).json(savedWord);
     } catch (error) {
