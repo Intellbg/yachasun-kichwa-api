@@ -40,7 +40,7 @@ const getWordList = async (req, res) => {
             query.kichwa = { $regex: `^${req.query.english}`, $options: 'i' };
         }
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 50;
         const skip = (page - 1) * limit;
 
         const sort = req.query.sort || 'kichwa'; 
