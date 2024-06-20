@@ -4,15 +4,15 @@ import dotenv from 'dotenv';
 import connectDB from './config/mongo.js';
 import wordRoutesV1 from "./routes/v1/wordRoutes.js"
 import checkApiKey from './middleware/authorization.js';
-
+import cors from "cors"
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 connectDB();
 
 app.use(bodyParser.json());
+app.use(cors());
 app.use(checkApiKey);
 app.use('/api/v1/word', wordRoutesV1);
 
