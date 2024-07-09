@@ -1,4 +1,4 @@
-import Word from '../../models/word.js';
+import Word from '../../models/Word.js';
 import mongoose from 'mongoose';
 const createWordEntry = async (req, res) => {
     try {
