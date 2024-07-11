@@ -14,8 +14,7 @@ router.post('/register', async (req, res) => {
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user = new User({ email: email.toLowerCase(), password: hashedPassword, device, name });
+    user = new User({ email: email.toLowerCase(), password, device, name });
     await user.save();
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const url = `${process.env.DOMAIN}/email-verification/${token}`;

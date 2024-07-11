@@ -2,7 +2,6 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
 
 passport.use(new LocalStrategy({
     usernameField: 'email',
@@ -13,7 +12,10 @@ passport.use(new LocalStrategy({
         if (!user) {
             return done(null, false, { message: 'Incorrect credentials.' });
         }
-        const isMatch = bcrypt.compare(password, user.password);
+        if (!user.verified) {
+            return done(null, false, { message: 'Unverified' });
+        }
+        const isMatch = await user.matchPassword(password, user.password);
         if (!isMatch) {
             return done(null, false, { message: 'Incorrect credentials.' });
         }
