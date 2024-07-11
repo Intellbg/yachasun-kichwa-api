@@ -3,6 +3,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import transporter from '../../config/nodemailer.js';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -13,11 +14,12 @@ router.post('/register', async (req, res) => {
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
-    user = new User({ email, password, device, name });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user = new User({ email: email.toLowerCase(), password: hashedPassword, device, name });
     await user.save();
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const url = `${process.env.DOMAIN}/email-verification/${token}`;
-     transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USERNAME,
       to: email,
       subject: 'Verifica tu cuenta de Yachasun Kiwchwa',
@@ -25,7 +27,6 @@ router.post('/register', async (req, res) => {
     }, (error, info) => {
       console.error(error)
       console.log(info)
-
     }
     );
     res.status(201).json({ message: 'User registered successfully' });
@@ -62,7 +63,7 @@ router.post('/login', (req, res, next) => {
     if (err) return next(err);
     if (!user) return res.status(400).json({ message: info.message });
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    res.json({ token, user:user });
   })(req, res, next);
 });
 
