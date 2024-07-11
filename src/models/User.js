@@ -7,9 +7,10 @@ const UserSchema = new mongoose.Schema({
     password: { type: String },
     googleId: { type: String },
     name: { type: String },
-    app_score: { type: Number },
+    app_score: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     device: { type: String },
+    verified: { type: Boolean, default:false },
 });
 
 UserSchema.pre('save', async function (next) {
