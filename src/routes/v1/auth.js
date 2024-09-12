@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import transporter from '../../config/nodemailer.js';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -94,6 +95,28 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
+
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() }, 
+    });
+    if (!user) {
+      return res.status(400).json({ message: 'Token inválido o caducado' });
+    }
+    user.password = password;
+    user.resetToken = '';
+    user.resetTokenExpiration = '';
+    await user.save();
+    res.json({ message: 'Contraseña restablecida con éxito' });
+  } catch (error) {
+    console.error('Error in /reset-password:', error);
+    res.status(500).json({ message: 'Ocurrió un error al intentar restablecer la contraseña' });
+  }
+});
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
