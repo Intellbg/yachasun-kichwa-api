@@ -3,11 +3,11 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import User from '../../models/User.js';
 import transporter from '../../config/nodemailer.js';
-import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/signup', async (req, res) => {
   const { email, password, device, name } = req.body;
   try {
     let user = await User.findOne({ email });
@@ -62,9 +62,38 @@ router.post('/login', (req, res, next) => {
     if (err) return next(err);
     if (!user) return res.status(400).json({ message: info.message });
     const token = jwt.sign({ id: user.id, app_score: user.app_score, name:user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
+    res.json({ token, app_score:user.app_score });
   })(req, res, next);
 });
+
+
+router.post('/forgot-password', async (req, res) => {
+  try{
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user){
+      console.log("not found"+email)
+      return res.json({ message: 'ok' });
+    }
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiration = Date.now() + 3600000; 
+    user.resetToken = resetToken;
+    user.resetTokenExpiration = tokenExpiration;
+    await user.save();
+    const resetLink = `${process.env.DOMAIN}/reset-password/${resetToken}`;
+    await transporter.sendMail({
+      from: process.env.EMAIL_USERNAME,
+      to: user.email,
+      subject: 'Recuperación de contraseña',
+      html: `Para recuperar tu contraseña ingresa en el siguiente: <a href="${resetLink}">enlace</a></p>`,
+    });
+    return res.json({ message: 'ok' });
+  }catch (error){
+    console.error('Error in /forgot-password:', error);
+    return res.json({ message: 'ok' });
+  }
+});
+
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 

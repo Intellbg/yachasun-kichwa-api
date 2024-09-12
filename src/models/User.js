@@ -11,6 +11,8 @@ const UserSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     device: { type: String },
     verified: { type: Boolean, default:false },
+    resetToken: String,
+    resetTokenExpiration: Date,
 });
 
 UserSchema.pre('save', async function (next) {
