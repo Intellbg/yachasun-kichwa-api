@@ -11,6 +11,7 @@ import './config/passport.js';
 
 import wordRoutesV1 from "./routes/v1/word.js"
 import authRoutesV1 from "./routes/v1/auth.js"
+import userRoutesV1 from "./routes/v1/user.js"
 
 import cors from "cors"
 
@@ -28,6 +29,7 @@ app.use(passport.session());
 
 app.use('/api/v1/word', wordRoutesV1);
 app.use('/api/v1/auth', authRoutesV1);
+app.use('/api/v1/user', userRoutesV1);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
