@@ -62,22 +62,24 @@ router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
     if (!user) return res.status(400).json({ message: info.message });
-    const key = jwt.sign({ id: user.id, app_score: user.app_score, name:user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ key, username:user.email });
+    const key = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    user.auth_key = key
+    user.save()
+    res.json({ key, username: user.email, id: user.id });
   })(req, res, next);
 });
 
 
 router.post('/forgot-password', async (req, res) => {
-  try{
+  try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user){
-      console.log("not found"+email)
+    if (!user) {
+      console.log("not found" + email)
       return res.json({ message: 'ok' });
     }
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const tokenExpiration = Date.now() + 3600000; 
+    const tokenExpiration = Date.now() + 3600000;
     user.resetToken = resetToken;
     user.resetTokenExpiration = tokenExpiration;
     await user.save();
@@ -89,7 +91,7 @@ router.post('/forgot-password', async (req, res) => {
       html: `Para recuperar tu contraseña ingresa en el siguiente: <a href="${resetLink}">enlace</a></p>`,
     });
     return res.json({ message: 'ok' });
-  }catch (error){
+  } catch (error) {
     console.error('Error in /forgot-password:', error);
     return res.json({ message: 'ok' });
   }
@@ -102,7 +104,7 @@ router.post('/reset-password/:token', async (req, res) => {
     const { password } = req.body;
     const user = await User.findOne({
       resetToken: token,
-      resetTokenExpiration: { $gt: Date.now() }, 
+      resetTokenExpiration: { $gt: Date.now() },
     });
     if (!user) {
       return res.status(400).json({ message: 'Token inválido o caducado' });
@@ -123,6 +125,8 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
   const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  req.user.auth_key = key
+  req.user.save()
   res.redirect(`/?token=${token}`);
 });
 
