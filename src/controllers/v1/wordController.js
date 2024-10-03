@@ -6,8 +6,8 @@ const createWordEntry = async (req, res) => {
         const newWord = new Word({
             kichwa, spanish, english, lecture, tags, imagen, audio
         });
-        const word = await Word.findOne({kichwa: req.body.kichwa});
-        if (word){
+        const word = await Word.findOne({ kichwa: req.body.kichwa });
+        if (word) {
             return res.status(400).json({ message: 'Duplicate entry found' });
         }
         const savedWord = await newWord.save();
@@ -47,7 +47,7 @@ const getWordList = async (req, res) => {
         const limit = parseInt(req.query.limit) || 1000;
         const skip = (page - 1) * limit;
 
-        const sort = req.query.sort || 'kichwa'; 
+        const sort = req.query.sort || 'kichwa';
         const sortOrder = req.query.sortOrder || 'desc';
 
         const wordList = await Word.find(query)
@@ -119,4 +119,73 @@ const deleteWordEntry = async (req, res) => {
     }
 };
 
-export { getWordList, createWordEntry, getWordEntry, patchWordEntry, deleteWordEntry };
+const getQuestion = async (req, res) => {
+    try {
+        const { lectures } = req.query;
+        const lecture_list = lectures ? lectures.split(',') : [];
+        const isArrayOfChars = Array.isArray(lecture_list) && lecture_list.every(item => typeof item === 'string');
+        const size = req.query.size ? Number(req.query.size) : 1;
+        const options = req.query.options ? Number(req.query.options) : null;
+        if (!isArrayOfChars) {
+            return res.status(400).send('The parameter is not an array of characters.');
+        }
+        console.log(lecture_list)
+        const wordList = await Word.aggregate([
+            { $match: { lecture: { $in: lecture_list } } },
+            { $sample: { size: size } },
+            {
+                $project: {
+                    _id: 0,
+                    kichwa: 1,
+                    spanish: 1,
+                }
+            }
+        ])
+        const response = await Promise.all(wordList.map(async (word) => {
+            const is_spanish = Math.floor(Math.random() * 2);
+            var question = {}
+            console.log(is_spanish === 1)
+            if (is_spanish === 1) {
+                question['question'] = `¿Cuál es la traducción de ${word['kichwa']} en español?`
+                question['answer'] = word['spanish']
+                if (options) {
+                    question['options'] = await Word.aggregate([
+                        { $match: { lecture: { $in: lecture_list } } },
+                        { $sample: { size: options - 1 } },
+                        {
+                            $project: {
+                                _id: 0,
+                                spanish: 1,
+                            }
+                        }
+                    ]).then(results => results.map(item => item.spanish));
+                }
+                question['options'].push(word['spanish'])
+            } else {
+                question['question'] = `¿Cuál es la traducción de ${word['spanish']} en kichwa?`
+                question['answer'] = word['kichwa']
+                if (options) {
+                    question['options'] = await Word.aggregate([
+                        { $match: { lecture: { $in: lecture_list } } },
+                        { $sample: { size: options - 1 } },
+                        {
+                            $project: {
+                                _id: 0,
+                                kichwa: 1,
+                            }
+                        }
+                    ]).then(results => results.map(item => item.kichwa));
+                    question['options'].push(word['kichwa'])
+                }
+            }
+            console.log(question)
+            return question
+        }))
+        res.json(response);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Server Error s' });
+    }
+};
+
+export { getWordList, createWordEntry, getWordEntry, patchWordEntry, deleteWordEntry, getQuestion };
