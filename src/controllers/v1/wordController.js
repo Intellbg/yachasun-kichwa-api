@@ -159,8 +159,8 @@ const getQuestion = async (req, res) => {
                             }
                         }
                     ]).then(results => results.map(item => item.spanish));
+                    question['options'].push(word['spanish'])
                 }
-                question['options'].push(word['spanish'])
             } else {
                 question['question'] = `¿Cuál es la traducción de ${word['spanish']} en kichwa?`
                 question['answer'] = word['kichwa']
