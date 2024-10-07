@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 
 import connectDB from './config/mongo.js';
-import checkApiKey from './middleware/authorization.js';
 import './config/passport.js';
 
 import wordRoutesV1 from "./routes/v1/word.js"
