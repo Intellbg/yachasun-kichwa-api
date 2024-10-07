@@ -46,6 +46,7 @@ const getWordList = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 1000;
         const skip = (page - 1) * limit;
+        
 
         const sort = req.query.sort || 'kichwa'; 
         const sortOrder = req.query.sortOrder || 'desc';
