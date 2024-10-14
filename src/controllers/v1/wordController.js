@@ -146,7 +146,7 @@ const getQuestion = async (req, res) => {
             var question = {}
             console.log(is_spanish === 1)
             if (is_spanish === 1) {
-                question['question'] = `¿Cuál es la traducción de ${word['kichwa']} en español?`
+                question['question'] = `¿Cuál es la traducción de \"${word['kichwa']}\" en español?`
                 question['answer'] = word['spanish']
                 if (options) {
                     question['options'] = await Word.aggregate([
@@ -162,7 +162,7 @@ const getQuestion = async (req, res) => {
                     question['options'].push(word['spanish'])
                 }
             } else {
-                question['question'] = `¿Cuál es la traducción de ${word['spanish']} en kichwa?`
+                question['question'] = `¿Cuál es la traducción de \"${word['spanish']}\" en kichwa?`
                 question['answer'] = word['kichwa']
                 if (options) {
                     question['options'] = await Word.aggregate([
