@@ -27,6 +27,10 @@ const getWordList = async (req, res) => {
         if (req.query.lecture) {
             query.lecture = req.query.lecture;
         }
+        
+        if (req.query.lectures) {
+            query.lecture = { $in: req.query.lectures.split(',') };
+        }
 
         if (req.query.tags) {
             query.tags = { $in: req.query.tags.split(',') };
