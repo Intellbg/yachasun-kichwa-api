@@ -150,7 +150,12 @@ const getQuestion = async (req, res) => {
                 question['answer'] = word['spanish']
                 if (options) {
                     question['options'] = await Word.aggregate([
-                        { $match: { lecture: { $in: lecture_list } } },
+                        {
+                            $match: {
+                                lecture: { $in: lecture_list },
+                                spanish: { $ne: word['spanish'] }
+                            }
+                        },
                         { $sample: { size: options - 1 } },
                         {
                             $project: {
@@ -166,7 +171,12 @@ const getQuestion = async (req, res) => {
                 question['answer'] = word['kichwa']
                 if (options) {
                     question['options'] = await Word.aggregate([
-                        { $match: { lecture: { $in: lecture_list } } },
+                        {
+                            $match: {
+                                lecture: { $in: lecture_list },
+                                kichwa: { $ne: word['kichwa'] }
+                            }
+                        },
                         { $sample: { size: options - 1 } },
                         {
                             $project: {
