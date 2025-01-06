@@ -250,4 +250,53 @@ const getQuestionTime = async (req, res) => {
     }
 };
 
-export { getSentenceList, createSentenceEntry, getSentenceEntry, patchSentenceEntry, deleteSentenceEntry, getQuestion, getQuestionTime };
+const getSentence = async (req, res) => {
+    try {
+        const { lectures } = req.query;
+        const lecture_list = lectures ? lectures.split(',') : [];
+        const size = req.query.size ? Number(req.query.size) : 10;
+        
+        if (!Array.isArray(lecture_list) || !lecture_list.every(item => typeof item === 'string')) {
+            return res.status(400).send('El parámetro "lectures" debe ser un array de strings.');
+        }
+
+        const sentences = await Sentence.aggregate([
+            {
+                $match: {
+                    lecture: { $in: lecture_list }
+                }
+            },
+            {                
+                $match: {
+                    $expr: {
+                        $gte: [
+                            { $size: { $split: ["$kichwa", " "] } },
+                            3 
+                        ]
+                    }
+                }
+            },
+            {
+                $sample: { size: size }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    kichwa: 1,
+                    spanish: 1,
+                    options: 1,
+                }
+            }
+        ]);
+
+        console.log(sentences);
+
+        res.json(sentences);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error en el servidor.' });
+    }
+};
+
+
+export { getSentenceList, createSentenceEntry, getSentenceEntry, patchSentenceEntry, deleteSentenceEntry, getQuestion, getQuestionTime, getSentence };
