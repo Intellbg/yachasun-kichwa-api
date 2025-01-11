@@ -107,7 +107,7 @@ router.post('/reset-password/:token', async (req, res) => {
       resetTokenExpiration: { $gt: Date.now() },
     });
     if (!user) {
-      return res.status(400).json({ message: 'Token inválido o caducado' });
+      return res.status(406).json({ message: 'Token inválido o caducado' });
     }
     user.password = password;
     user.resetToken = '';
