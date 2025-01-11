@@ -27,13 +27,17 @@ const getWordList = async (req, res) => {
         if (req.query.lecture) {
             query.lecture = req.query.lecture;
         }
-        
+
         if (req.query.lectures) {
             query.lecture = { $in: req.query.lectures.split(',') };
         }
 
         if (req.query.tags) {
             query.tags = { $in: req.query.tags.split(',') };
+        }
+
+        if (req.query.ntags) {
+            query.tags = { $nin: req.query.ntags.split(',') };
         }
 
         if (req.query.kichwa) {
@@ -50,7 +54,7 @@ const getWordList = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 1000;
         const skip = (page - 1) * limit;
-        
+
 
         const sort = req.query.sort || 'kichwa';
         const sortOrder = req.query.sortOrder || 'desc';
