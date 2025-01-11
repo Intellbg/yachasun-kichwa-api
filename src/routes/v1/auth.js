@@ -65,7 +65,7 @@ router.post('/login', (req, res, next) => {
     const key = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
     user.auth_key = key
     user.save()
-    res.json({ key, username: user.email, id: user.id, level: user.level, name: name });
+    res.json({ key, username: user.email, id: user.id, level: user.level, name: user.name });
   })(req, res, next);
 });
 
